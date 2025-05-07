@@ -1,10 +1,8 @@
 # called on an epub file
-epub_name = 'books/manual.epub'
-
 import os
 from ebooklib import epub
 
-UNKNOWN = 'Unknown'
+from utils import UNKNOWN, sanitize_filename
 
 def get_metadata(epub_path):
     """Extract author and title metadata from an EPUB file."""
@@ -29,6 +27,7 @@ def rename_epubs(directory):
 
             if author and title:
                 new_name = f"{author} - {title}.epub"
+                new_name = sanitize_filename(new_name)
                 new_path = os.path.join(directory, new_name)
                 try:
                     os.rename(file_path, new_path)

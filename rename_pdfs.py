@@ -1,17 +1,9 @@
 import os
 from PyPDF2 import PdfReader
 import re
-UNKNOWN = 'Unknown'
 
-def sanitize_filename(name):
-    """
-    Sanitize a string to make it safe for use as a file name.
-    Removes or replaces invalid characters.
-    """
-    # Replace invalid characters with an underscore
-    sanitized = re.sub(r'[\\/:*?"<>|]', '_', name)
-    # Strip leading/trailing whitespace and dots
-    return sanitized.strip().strip('.')
+from utils import UNKNOWN, sanitize_filename
+
 
 def get_metadata(pdf_path):
     """Extract author and title metadata from a PDF file."""
