@@ -1,5 +1,6 @@
 # called on an epub file
 import os
+import re
 from ebooklib import epub
 
 from epubs import get_metadata_epub
@@ -17,6 +18,12 @@ def get_metadata(epub_path):
         print(f"Error reading {epub_path}: {e}")
         return None, None
 
+def contains_alphabetic_characters(s):
+    """
+    Check if a string contains any alphabetic characters (a-zA-Z).
+    """
+    return bool(re.search(r'[a-zA-Z]', s))
+
 def rename_books(directory):
     """Rename all EPUB/PDF files in the given directory."""
     for root, _, files in os.walk(directory):
@@ -28,14 +35,27 @@ def rename_books(directory):
                 author, title = get_metadata_pdf(file_path)
             elif file_name.lower().endswith('.epub'):
                 author, title = get_metadata_epub(file_path)
+            if not author or not title:
+                print(f"Skipping: {file_name} (metadata not found)")
+                continue
             if author.lower() == UNKNOWN or title.lower() == UNKNOWN:
                 print(f"Skipping: {file_name} (metadata not found)")
                 continue
+            # sometimes the author is replaced with numbers - then don't rename
+            if not contains_alphabetic_characters(author):
+                print(f"Skipping: {file_path} (author name doesn't contain alphabetic characters)")
+                continue
+
 
             if author and title:
+                author = author.strip()
+                title = title.strip()
                 original_extension = os.path.splitext(file_name)[1]
                 new_name = f"{author} - {title}{original_extension}"
-                new_name = sanitize_filename(new_name)
+                # sometimes there are two folowing dots
+                new_name = re.sub(r'\.\.+', '.', new_name)
+
+                new_name = sanitize_filename(new_name).strip()
                 new_path = os.path.join(root, new_name)
                 if file_path == new_path:
                     # skip, no rename needed
