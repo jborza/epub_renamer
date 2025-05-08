@@ -23,7 +23,7 @@ def rename_pdfs(directory):
         if file_name.lower().endswith('.pdf'):
             file_path = os.path.join(directory, file_name)
             author, title = get_metadata(file_path)
-            if author == UNKNOWN or title == UNKNOWN:
+            if author.lower() == UNKNOWN or title.lower() == UNKNOWN:
                 print(f"Skipping: {file_name} (metadata not found)")
                 continue
 

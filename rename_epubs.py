@@ -17,18 +17,21 @@ def get_metadata(epub_path):
 
 def rename_epubs(directory):
     """Rename all EPUB files in the given directory."""
-    for file_name in os.listdir(directory):
-        if file_name.lower().endswith('.epub'):
-            file_path = os.path.join(directory, file_name)
+    for root, _, files in os.walk(directory):
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
             author, title = get_metadata(file_path)
-            if author == UNKNOWN or title == UNKNOWN:
+            if author.lower() == UNKNOWN or title.lower() == UNKNOWN:
                 print(f"Skipping: {file_name} (metadata not found)")
                 continue
 
             if author and title:
                 new_name = f"{author} - {title}.epub"
                 new_name = sanitize_filename(new_name)
-                new_path = os.path.join(directory, new_name)
+                new_path = os.path.join(root, new_name)
+                if file_path == new_path:
+                    # skip, no rename needed
+                    continue
                 try:
                     os.rename(file_path, new_path)
                     print(f"Renamed: {file_name} -> {new_name}")
